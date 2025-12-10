@@ -367,7 +367,7 @@
 
             For each pair $(y^+,y^-)$, we first convert the rewards into the probability that $y^+$ is preferred over $y^-$: $$p_\theta^+ = \sigma\big( r_\theta(y^{+}) - r_\theta(y^{-}) \big).$$ <br><br>
 
-            Treating the preferred response $y^+$ as the positive class, the GCE loss for a single pair is then: $$\mathcal{L}_{\mathrm{GCE}} = \frac{1-(p_\theta^+)^q}{q}.$$ <br><br>
+            Treating the preferred response $y^+$ as the positive class, the GCE loss for a single pair is then: $$\mathcal{L}_{\mathrm{GCE}} = \frac{1-(p_\theta^+)^q}{q}.$$
 
             <h2>Symmetric Cross-Entropy (SCE)</h2>
             In addition to GCE, we also test Symmetric Cross-Entropy (SCE), which augments the standard cross‑entropy with a reverse cross‑entropy term <a href="#ref_7">[7]</a>. Similarly, this loss function improves performance on noisy labels, under both symmetric and asymmetric noise settings. <br><br>
