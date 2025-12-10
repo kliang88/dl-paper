@@ -291,6 +291,7 @@
 					</div>
 		</div>
 
+
 		<div class="content-margin-container" id="intro">
 				<div class="margin-left-block">
           <!-- table of contents here -->
@@ -304,12 +305,6 @@
               <a href="#conclusion">Conclusion</a><br><br>
           </div>
 				</div>
-		</div>
-
-    <div class="content-margin-container" id="intro">
-				<div class="margin-left-block">
-				</div>
-            
 		    <div class="main-content-block">
                 
                 The source code for the work described in this study can be found <a href="https://github.com/iamxjy/dl-rm-loss">here.</a><br><br>
@@ -317,12 +312,13 @@
                         Large language models (LLMs) increasingly rely on alignment techniques to ensure that their outputs are helpful and consistent with human expectations. A central component of modern alignment pipelines is Reinforcement Learning from Human Feedback (RLHF), where pretrained models are further trained using pairwise human preference data <a href="#ref_1">[1]</a>. In RLHF, preference data is collected through expert annotators, crowd-sourcing, or even from end users via in-product preference prompts. However, this human preference data is frequently noisy: annotators may disagree, lack expertise, follow incorrect biases (e.g. preferring longer responses), or even respond arbitrarily when uncertain, especially if the annotators is not an expert <a href="#ref_2">[2]</a>. This problem has been documented in crowd-sourced labeling studies, showing that such data often contains substantial randomness, inconsistency, and label corruption <a href="#ref_3">[3</a>, <a href="#ref_4">4</a>, <a href="#ref_5">5]</a>. <br><br>
                         
                         Despite the presence of noise, reward models in RLHF are typically trained using the Bradley-Terry (BT) logistic loss, which is an equivalent of binary cross-entropy applied to preference comparisons <a href="#ref_1">[1]</a>. While simple and widely adopted, cross-entropy–based losses are known to be sensitive to noisy labels, leading models to overfit to mislabeled samples and have poor generalization <a href="#ref_6">[6</a>, <a href="#ref_7">7</a>, <a href="#ref_8">8]</a>. This sensitivity is especially problematic for RLHF, where the reward model is almost always further used downstream, for example to define the objective for policy learning (e.g., PPO or GRPO). <br><br>
-
+                        
                         In contrast, the broader machine-learning literature offers a variety of noise-robust loss functions, such as Generalized Cross Entropy (GCE) and Symmetric Cross Entropy (SCE), which have demonstrated improvements over cross entropy loss under noisy settings <a href="#ref_6">[6</a>, <a href="#ref_7">7]</a>.  <br><br>
-
+                        
                         This motivates a natural research question for RLHF: Can we improve preference-based reward modeling, and thereby alignment performance, by replacing the standard BT loss with a noise-robust alternative? In this work, we address this question using controlled noise experiments, training reward models under varying synthetic noise levels with both standard and robust losses, and evaluating their effects on reward accuracy and downstream alignment performance.
-
 		    </div>
+	        <div class="margin-right-block">
+	        </div>
 		</div>
 
 		<div class="content-margin-container" id="prior_work">
@@ -421,20 +417,20 @@
                 <img src="./figures/grpo_train_curve.png" width="700px" style="padding-top: 10px;"/>
                 <p>Our results show that the GCE-0.9-based policy substantially outperforms the BT-based policy. <b>The GCE-0.9 policy is preferred by the LM judge on 707/1,024 UltraChat prompts (69.04%) and on 542/750 Arena-Hard-Auto prompts (72.26%).</b> For both datasets, the GCE robust‑loss policy wins more than twice as often as the baseline. This gap is far larger than would be expected from random variation, suggesting that the choice of loss for reward modeling can have a significant downstream impact on GRPO under noisy preference data.</p>
                 <p>On UltraChat, these results shows that a more noise-robust reward model yields substantially better behavior on the training domain. On Arena-Hard-Auto, the high win rate suggests that this performance extends to difficult, real-world questions and creative writing, as opposed to overfitting to the GRPO training data. Together with the standalone reward‑model results, these findings suggest that even relatively modest gains in reward robustness can lead to substantial improvements in alignment quality.</p>
-                <p>We hypothesize that this improvement can be attributed to both the higher RM accuracy, as well as potentially <b>greater reward margins</b> by the robust loss functions. Specifically, in addition to gaining 2.5% in eval accuracy, the GCE-0.9 reward model outputted reward scores that were significantly more spread out than that of the BT reward model. We calculate the evaluation margin of the best reward models at each setting to confirm this, which is the average difference between the reward given on the preferred response and the rejected response over the evaluation set. We report these metrics below over all noise levels and loss functions at the best hyperparameters. We observe that GCE and SCE consistently output higher reward margin.</p>
+                <p>We hypothesize that this improvement can be attributed to both the higher RM accuracy, as well as potentially <b>greater reward margins</b> by the robust loss functions. Specifically, in addition to gaining 2.5% in eval accuracy, the GCE-0.9 reward model outputted reward scores that were significantly more spread out than that of the BT reward model. We calculate the evaluation margin of the best reward models at each setting to confirm this, which is the average difference between the reward given on the preferred response and the rejected response over the evaluation set. We report these metrics below over all noise levels and loss functions at the best hyperparameters. We observe that GCE and SCE consistently output higher reward margin. Unfortunately, due to compute constraints, we were not able to fully test this hypothesis by running further GRPO finetuning tests.</p>
                 <img src="./figures/rm_eval_margin_table.png" width="400px" style="padding-top: 10px;"/>
             </div>
-    <div class="margin-right-block" style="transform: translate(0%, -300%);">
+    <div class="margin-right-block" style="transform: translate(0%, -240%);">
         <p style="transform: translate(0%, 0%);">
             <b>Table 1.</b> Reward model accuracy (%) over loss functions and noise levels.
         </p>
-        <p style="transform: translate(0%, 1800%);">
+        <p style="transform: translate(0%, 800%);">
             <b>Figure 1.</b> Train and eval curves for best reward models.  Note that GCE/SCE only diverges meaningfully from BT at 40% noise.
         </p>
-        <p style="transform: translate(0%, 2800%);">
+        <p style="transform: translate(0%, 2600%);">
             <b>Figure 2.</b> Train reward and objective curves during GRPO training.
         </p>
-        <p style="transform: translate(0%, 4400%);">
+        <p style="transform: translate(0%, 4000%);">
             <b>Table 2.</b> Evaluation margin for the best models.
         </p>
     </div>
