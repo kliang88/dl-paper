@@ -1,0 +1,579 @@
+<html>
+<head>
+<script>
+    window.MathJax = {
+        tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+    };
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="shortcut icon" href="images/icon.ico">
+<style type="text/css">
+	body {
+		background-color: #f5f9ff;
+		counter-reset: h1;
+	}
+
+	/* Hide both math displays initially, will display based on JS detection */
+  .mathjax-mobile, .mathml-non-mobile { display: none; }
+
+  /* Show the MathML content by default on non-mobile devices */
+  .show-mathml .mathml-non-mobile { display: block; }
+  .show-mathjax .mathjax-mobile { display: block; }
+
+	.content-margin-container {
+		display: flex;
+		width: 100%; /* Ensure the container is full width */
+		justify-content: left; /* Horizontally centers the children in the container */
+		align-items: center;  /* Vertically centers the children in the container */
+	}
+	.main-content-block {
+		width: 70%; /* Change this percentage as needed */
+    max-width: 1100px; /* Optional: Maximum width */
+		background-color: #fff;
+		border-left: 1px solid #DDD;
+		border-right: 1px solid #DDD;
+		padding: 8px 8px 8px 8px;
+		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
+	}
+	.margin-left-block {
+			font-size: 14px;
+			width: 15%; /* Change this percentage as needed */
+			max-width: 130px; /* Optional: Maximum width */
+			position: relative;
+			margin-left: 10px;
+			text-align: left;
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
+			padding: 5px;
+	}
+	.margin-right-block {
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;#"Avenir";
+			font-size: 14px;
+			width: 25%; /* Change this percentage as needed */
+			max-width: 256px; /* Optional: Maximum width */
+			position: relative;
+			text-align: left;
+			padding: 10px;  /* Optional: Adds padding inside the caption */
+	}
+
+	img {
+			max-width: 100%; /* Make sure it fits inside the container */
+			height: auto;
+			display: block;
+			margin: auto;
+	}
+	.my-video {
+			max-width: 100%; /* Make sure it fits inside the container */
+			height: auto;
+			display: block;
+			margin: auto;
+	}
+	/* Hide both video displays initially, will display based on JS detection */
+  .vid-mobile, .vid-non-mobile { display: none; }
+
+  /* Show the video content by default on non-mobile devices */
+  .show-vid-mobile .vid-mobile { display: block; }
+  .show-vid-non-mobile .vid-non-mobile { display: block; }
+
+	a:link,a:visited
+	{
+		color: #0e7862; /*#1367a7;*/
+		text-decoration: none;
+	}
+	a:hover {
+		color: #24b597; /*#208799;*/
+	}
+
+	h1 {
+		font-size: 20px;
+		font-weight: 700;
+		color: #000;
+		margin-top: 4px;
+		margin-bottom: 10px;
+		counter-reset: h2;
+	}
+
+	h1:before {
+		counter-increment: h1;
+		content: counter(h1) ". ";
+		margin-right: 6px;
+	}
+
+	h2 {
+		font-size: 16px;
+		font-weight: 600;
+		color: #000;
+		letter-spacing: 0.3px;
+		margin-top: 14px;
+		margin-bottom: 8px;
+	}
+
+	h2:before {
+		counter-increment: h2;
+		content: counter(h1) "." counter(h2) " ";
+		margin-right: 6px;
+	}
+
+	table.header {
+    font-weight: 300;
+    font-size: 17px;
+    flex-grow: 1;
+		width: 70%;
+    max-width: calc(100% - 290px); /* Adjust according to the width of .paper-code-tab */
+	}
+	table td, table td * {
+	    vertical-align: middle;
+	    position: relative;
+	}
+	table.paper-code-tab {
+	    flex-shrink: 0;
+	    margin-left: 8px;
+	    margin-top: 8px;
+	    padding: 0px 0px 0px 8px;
+	    width: 290px;
+	    height: 150px;
+	}
+
+	.layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+		box-shadow:
+		        0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+		        5px 5px 0 0px #fff, /* The second layer */
+		        5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+		        10px 10px 0 0px #fff, /* The third layer */
+		        10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
+		margin-top: 5px;
+		margin-left: 10px;
+		margin-right: 30px;
+		margin-bottom: 5px;
+	}
+
+	hr {
+    height: 1px; /* Sets the height of the line to 1 pixel */
+    border: none; /* Removes the default border */
+    background-color: #DDD; /* Sets the line color to black */
+  }
+
+	div.hypothesis {
+		width: 80%;
+		background-color: #EEE;
+		border: 1px solid black;
+		border-radius: 10px;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		font-family: Courier;
+		font-size: 18px;
+		text-align: center;
+		margin: auto;
+		padding: 16px 16px 16px 16px;
+	}
+
+	div.citation {
+    font-size: 0.8em;
+    background-color:#fff;
+    padding: 10px;
+		height: 200px;
+  }
+
+	.fade-in-inline {
+		position: absolute;
+		text-align: center;
+		margin: auto;
+		-webkit-mask-image: linear-gradient(to right,
+																			transparent 0%,
+																			transparent 40%,
+																			black 50%,
+																			black 90%,
+																			transparent 100%);
+		mask-image: linear-gradient(to right,
+																transparent 0%,
+																transparent 40%,
+																black 50%,
+																black 90%,
+																transparent 100%);
+		-webkit-mask-size: 8000% 100%;
+		mask-size: 8000% 100%;
+		animation-name: sweepMask;
+		animation-duration: 4s;
+		animation-iteration-count: infinite;
+		animation-timing-function: linear;
+		animation-delay: -1s;
+	}
+
+	.fade-in2-inline {
+			animation-delay: 1s;
+	}
+
+	.inline-div {
+			position: relative;
+	    display: inline-block; /* Makes both the div and paragraph inline-block elements */
+	    vertical-align: top; /* Aligns them at the top, you can adjust this to middle, bottom, etc., based on your needs */
+	    width: 50px; /* Optional: Adds space between the div and the paragraph */
+	}
+    .algorithm-container {
+		max-width: 600px;
+		margin: 0 auto; /* Center the container */
+		padding: 20px;
+		background-color: #f9f9f9;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		text-align: left; /* Ensure text within the container is left-aligned */
+		display: block; /* Prevent flexbox issues */
+	}
+	.title {
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
+	.code {
+		font-family: "Courier New", Courier, monospace;
+		background: #f4f4f4;
+		padding: 10px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+		text-align: left; /* Explicitly set text alignment to left */
+		display: block;
+	}
+    .formula {
+            font-family: "Courier New", monospace;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            display: inline-block;
+        }
+
+    li {
+            margin-bottom: 15px; /* Adjust this value for desired spacing */
+        }
+        /* Reduce spacing for nested lists to keep structure clean */
+        ol li ol li {
+            margin-bottom: 10px;
+        }
+
+    
+</style>
+
+
+	  <title>Robust Reward Modeling Under Noisy Preferences</title>
+      <meta property="og:title" content="Robust Reward Modeling Under Noisy Preferences" />
+			<meta charset="UTF-8">
+  </head>
+
+  <body>
+
+		<div class="content-margin-container">
+				<div class="margin-left-block">
+				</div>
+		    <div class="main-content-block">
+						<table class="header" align=left>
+								<tr>
+									<td colspan=4>
+										<span style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">Robust Reward Modeling Under Noisy Preferences</span>
+									</td>
+								</tr>
+								<tr>
+										<td align=left>
+												<span style="font-size:17px"><a href="https://github.com/kliang88">Katherine Liang</a></span>
+										</td>
+										<td align=left>
+												<span style="font-size:17px"><a href="https://github.com/iamxjy">Iris Xu</a></span>
+                                    </td>
+								<tr>
+									<td colspan=4 align=left><span style="font-size:18px">Final project for 6.7960, MIT</span></td>
+								</tr>
+						</table>
+					</div>
+					<div class="margin-right-block">
+					</div>
+		</div>
+
+		<div class="content-margin-container" id="intro">
+				<div class="margin-left-block">
+          <!-- table of contents here -->
+          <div style="position:fixed; max-width:inherit; top:max(20%,120px)">
+              <b style="font-size:16px">Outline</b><br><br>
+              <a href="#intro">Introduction</a><br><br>
+              <a href="#prior_work">Prior Work</a><br><br>
+              <a href="#methods_experiments">Methods & Experiments</a><br><br>
+              <a href="#implementation">Technical Details</a><br><br>
+              <a href="#discussion">Discussion</a><br><br>
+              <a href="#conclusion">Conclusion</a><br><br>
+          </div>
+				</div>
+		</div>
+
+    <div class="content-margin-container" id="intro">
+				<div class="margin-left-block">
+				</div>
+            
+		    <div class="main-content-block">
+                
+                The source code for the work described in this study can be found <a href="https://github.com/iamxjy/dl-rm-loss">here.</a><br><br>
+						<h1>Introduction</h1>
+                        Large language models (LLMs) increasingly rely on alignment techniques to ensure that their outputs are helpful and consistent with human expectations. A central component of modern alignment pipelines is Reinforcement Learning from Human Feedback (RLHF), where pretrained models are further trained using pairwise human preference data <a href="#ref_1">[1]</a>. In RLHF, preference data is collected through expert annotators, crowd-sourcing, or even from end users via in-product preference prompts. However, this human preference data is frequently noisy: annotators may disagree, lack expertise, follow incorrect biases (e.g. preferring longer responses), or even respond arbitrarily when uncertain, especially if the annotators is not an expert <a href="#ref_2">[2]</a>. This problem has been documented in crowd-sourced labeling studies, showing that such data often contains substantial randomness, inconsistency, and label corruption <a href="#ref_3">[3</a>, <a href="#ref_4">4</a>, <a href="#ref_5">5]</a>. <br><br>
+                        
+                        Despite the presence of noise, reward models in RLHF are typically trained using the Bradley-Terry (BT) logistic loss, which is an equivalent of binary cross-entropy applied to preference comparisons <a href="#ref_1">[1]</a>. While simple and widely adopted, cross-entropy–based losses are known to be sensitive to noisy labels, leading models to overfit to mislabeled samples and have poor generalization <a href="#ref_6">[6</a>, <a href="#ref_7">7</a>, <a href="#ref_8">8]</a>. This sensitivity is especially problematic for RLHF, where the reward model is almost always further used downstream, for example to define the objective for policy learning (e.g., PPO or GRPO). <br><br>
+
+                        In contrast, the broader machine-learning literature offers a variety of noise-robust loss functions, such as Generalized Cross Entropy (GCE) and Symmetric Cross Entropy (SCE), which have demonstrated improvements over cross entropy loss under noisy settings <a href="#ref_6">[6</a>, <a href="#ref_7">7]</a>.  <br><br>
+
+                        This motivates a natural research question for RLHF: Can we improve preference-based reward modeling, and thereby alignment performance, by replacing the standard BT loss with a noise-robust alternative? In this work, we address this question using controlled noise experiments, training reward models under varying synthetic noise levels with both standard and robust losses, and evaluating their effects on reward accuracy and downstream alignment performance.
+
+		    </div>
+		</div>
+
+		<div class="content-margin-container" id="prior_work">
+				<div class="margin-left-block">
+				</div>
+		    <div class="main-content-block">
+					<h1>Prior Work</h1>
+                    Reinforcement learning from human feedback (RLHF) has become a standard paradigm for aligning large language models (LLMs) with human preferences. Specifically, modern training pipelines typically proceed as follows: a base model is first pre-trained on broad text corpora, then refined through supervised fine-tuning (SFT) on demonstrations of high-quality behavior. Afterward, human labelers compare alternative model outputs, and their preferences are used to train a reward model that predicts how well a given response aligns with human judgments. Finally, a policy optimization reinforcement learning algorithm, such as Proximal Policy Optimization (PPO) or Group Relative Policy Optimization (GRPO), is used to optimize the policy with respect to the learned reward <a href="#ref_9">[9</a>, <a href="#ref_10">10]</a>. <br><br>
+
+                    Within the RLHF pipeline, the reward model (RM) is a critical component. Prior work has shown that stronger reward models directly translate to more aligned policies <a href="#ref_1">[1]</a>. However, much of the existing work on training RMs assumes that the quality of the preference labels used during training is very high <a href="#ref_1">[1</a>, <a href="#ref_11">11]</a>. Specifically, they must be accurate enough that the standard BT loss, known to be sensitive to label noise, is a good choice. However, in practice, real‑world preference datasets may often be, which can distort both the learned reward and the downstream policy. Recent work shows that under synthetic reward signal noise of 10-20%, standard GRPO can slow dramatically or even collapse <a href="#ref_12">[12]</a>. <br><br>
+
+                    This has motivated a line of work on reward modeling under noisy or varied preferences. InfoRM focuses on reward hacking and misgeneralization, where the reward model focuses on irrelevant features that do not reflect human intent <a href="#ref_13">[13]</a>. They propose an information‑bottleneck objective that filters out irrelevant information in the reward representation. Other approaches model the distribution of label preferences: the Distributional Preference Reward Model (DPRM) models a distribution over crowd preferences for each LLM output and uses optimal‑transport losses to align this predicted distribution with the population-level preference distribution <a href="#ref_14">[14]</a>. Quantile Reward Models (QRMs) learn a quantile‑parameterized distribution over rewards through quantile regression, capturing uncertainty in human feedback <a href="#ref_15">[15]</a>. Broadly, these approaches aim to extract signal from noisy or diverse preferences, rather than treating noise as label corruption inside a classification problem. <br><br>
+
+                    In contrast, we adopt the latter perspective and treat noise as label corruption in a classification setting. Reward modeling can be viewed simply as predicting the preferred response out of two responses for a given prompt. Then, noise arises when annotators make mistakes, click randomly, or follow inconsistent instructions. Framing preference noise as label corruption connects RLHF reward modeling to the broader literature on learning with noisy labels, a much more mature field. <br><br>
+
+                    Specifically, in supervised classification, there have been a few significant works that use different loss functions to train models that are more robust when the data contains noisy labels. Ghosh et al. give theoretical conditions under which loss functions are tolerant to label noise, showing in particular that mean absolute error (MAE) is robust to noise <a href="#ref_16">[16]</a>. <br><br>
+
+                    Although MAE is more robust, it is usually hard to optimize, often underfitting (or converging slowly) when used with modern deep networks <a href="#ref_17">[17]</a>. To address the optimization difficulties of MAE, other loss functions have been proposed to balance robustness and ease of training, such as Generalized Cross Entropy (GCE) loss and Symmetric Cross Entropy (SCE) loss <a href="#ref_6">[6</a>, <a href="#ref_7">7]</a>. These robust losses are simple replacements for standard cross‑entropy and have been shown to significantly improve performance under label noise. Despite this, they have seen limited adoption in RLHF reward modeling. Thus, our study builds on these works by using GCE and SCE loss functions as the objective for reward modeling as opposed to the Bradley-Terry model.
+
+		    </div>
+		    <div class="margin-right-block"> <!-- you can move the margin notes up and down with translate -->
+		    </div>
+		</div>
+
+		<div class="content-margin-container", id="methods_experiments">
+				<div class="margin-left-block">
+				</div>
+		    <div class="main-content-block">
+            <h1>Methods and Experiments</h1>
+            <h2>Datasets and Noise Injection</h2>
+            For training the reward model, we use the UltraFeedback Binarized dataset, a high-quality preference dataset consisting of prompts, pairs of candidate responses, and the corresponding human preference ranking <a href="#ref_18">[18]</a>. For RM training, the binary pairwise comparisons are: $(x,y^+,y^-)$ where $x$ is the prompt, and $y^+$ and $y^-$ are the preferred and non-preferred responses, respectively. <br><br>
+
+            To simulate noisy human feedback, we introduce controlled levels of synthetic label noise into the reward model training dataset. For a given pairwise comparison, we flip the winner with probability $p$, turning each training example into $(x,y^-, y^+)$ with probability $p$, so that $p=0$ is the clean data, and $p=0.5$ would represent fully random preferences. We evaluate noise levels $p\in \{0,0.2,0.4\}$. <br><br>
+
+            <h2>Reward Modeling Baseline: Bradley-Terry Loss</h2>
+            Reward models output a scalar score $r_\theta(y \mid x)$ for each candidate response to represent how good response $y$ is for a given prompt $x$. Thus, for each reward model we implemented, we use a base model (Qwen3-0.6B-Base, which is pretrained but has not undergone any posttraining, e.g. SFT/RLHF) and added a one-layer scalar head to output reward. <br><br>
+
+            Under the standard Bradley--Terry (BT) model, the probability that $y^{+}$ is preferred over $y^{-}$ is: $$p_\theta^+ =\sigma\big( r_\theta(y^{+}) - r_\theta(y^{-}) \big), \;\text{where}\sigma(x)=1/(1+e^{-x}).$$ The corresponding loss for a single pair is: $$\mathcal{L}_{\mathrm{BT}} = -\log p_\theta^+ = -\log \sigma\big( r_\theta(y^{+}) - r_\theta(y^{-}) \big).$$ This objective is equivalent to binary cross-entropy on pairwise labels. <br><br>
+
+            <h2>Generalized Cross-Entropy (GCE)</h2>
+            We also consider Generalized Cross-Entropy (GCE) loss, which interpolates between standard cross‑entropy and mean absolute error using a parameter $q\in (0, 1]$ <a href="#ref_6">[6]</a>. Thus, this achieves a better trade‑off between successfully fitting the data and robustness. <br><br>
+
+            For each pair $(y^+,y^-)$, we first convert the rewards into the probability that $y^+$ is preferred over $y^-$: $$p_\theta^+ = \sigma\big( r_\theta(y^{+}) - r_\theta(y^{-}) \big).$$ <br><br>
+
+            Treating the preferred response $y^+$ as the positive class, the GCE loss for a single pair is then: $$\mathcal{L}_{\mathrm{GCE}} = \frac{1-(p_\theta^+)^q}{q}.$$ <br><br>
+
+            <h2>Symmetric Cross-Entropy (SCE)</h2>
+            In addition to GCE, we also test Symmetric Cross-Entropy (SCE), which augments the standard cross‑entropy with a reverse cross‑entropy term <a href="#ref_7">[7]</a>. Similarly, this loss function improves performance on noisy labels, under both symmetric and asymmetric noise settings. <br><br>
+
+            Given the same probabilities from the rewards: $$p_\theta^+ = P(y^{+} \succ y^{-}) = \sigma\big( r_\theta(y^{+}) - r_\theta(y^{-}) \big).$$ and the one-hot target distribution to be $q$, where $$q(+|(y^+,y^-))=1, \quad q(-|(y^+,y^-))=0.$$ <br><br>
+
+            Then, the standard cross-entropy term is $$\mathrm{CE}(y)=-\sum_{k\in \{+,-\}} q(k|y)\log p(k|y).$$ The reverse cross entropy term swaps the roles of $p$ and $q$: $$\mathrm{RCE}(y)=-\sum_{k\in \{+,-\}} p(k|y)\log q(k|y),$$ which is implemented in practice by clipping $q$ away from 0 to avoid numerical issues. The symmetric cross entropy loss for a single pair is then $$\mathcal{L}_{\mathrm{SCE}} = \alpha \mathrm{CE} + \beta \mathrm{RCE},$$ with $\alpha, \beta > 0$ controlling the balance between the standard and reverse terms. Intuitively, the CE term encourages the model to place high probability on the preferred response, while the RCE term penalizes over‑confident assignments to the potentially noisy label by pushing the predicted distribution away from inconsistent targets. <br><br>
+
+            As with GCE, we use the same reward model architecture as in the BT baseline and swap the loss for $\mathcal{L}_{\mathrm{SCE}}$, with $\alpha$ and $\beta$ as hyperparameters. <br><br>
+
+            <h2>Downstream GRPO Evaluation</h2>
+            In addition to evaluating the reward model on a preference test set, we also evaluate whether improved reward model robustness translates to improved policy learning. So, we fine-tune two Qwen3‑0.6B‑Base policies on UltraChat <a href="#ref_19">[19]</a>: one using the reward model for 40% noise trained with BT loss, and one using the best reward model variant for 40% noise (which ends up being GCE with $q=0.9$). We then compare the two policies using LM-as-a-judge on 1,024 prompts from a held‑out split of UltraChat and on the Arena-Hard-Auto dataset <a href="#ref_20">[20]</a>. Arena-Hard-Auto contains difficult user queries sourced from Chatbot Arena: 500 challenging real‑world questions (e.g., software engineering problems, math questions, etc.) and 250 creative‑writing prompts. For each prompt from these datasets, we query GPT-5.1 to choose which of the two policy responses is better (being careful to randomize the order of the responses to avoid positional bias. <br><br>
+
+            This two-stage setup allows us to determine whether noise-robust losses produce both better reward models and downstream alignment behavior. <br><br>
+
+            <h2>Experiment Summary</h2>
+            We summarize our overall experimental setup here. For each noise level $p \in \{0, 0.2, 0.4\}$, we add noise to the UltraFeedback preference training data with probability $p$, and train a reward model on the resulting dataset. All reward models share the same pre-trained base model, Qwen3‑0.6B‑Base with a single scalar head, and differ only in the training objective: BT loss, GCE, or SCE. For each configuration of loss and noise level, we train the reward model on the noisy training split and evaluate it on a clean held‑out validation and test split using pairwise accuracy. <br><br>
+
+            We then use the trained reward models in a two-stage pipeline. First, we evaluate their standalone accuracy on the UltraFeedback test set. Second, for the 40% noise level, we take the baseline BT reward model and the best robust variant (GCE with $q=0.9$) and use each as the learned reward to fine-tune a Qwen3-0.6B-Base policy with GRPO. The resulting downstream policies are compared using LM-as-a-judge, with GPT 5.1 serving as the judge model, and we report the corresponding win rates. <br><br>
+
+		    </div>
+		</div>
+
+		<div class="content-margin-container" id="implementation">
+            <div class="margin-left-block">
+            </div>
+        <div class="main-content-block">
+                    <h1>Technical Details</h1>
+                    <p><b>Model training.</b>&nbsp;&nbsp;&nbsp;We optimize all reward models with AdamW using an initial learning rate of $10^{-5}$, a batch size of 8, and a single epoch over the full UltraFeedback training split. Among the checkpoints saved during training, we select the one with the highest validation accuracy on a held-out subset of UltraFeedback. GRPO fine-tuning used AdamW with an initial learning rate of $10^{-5}$, run for one epoch on 17,068 prompts from the UltraChat dataset (1/15 of the train split due to compute constraints) <a href="#ref_19">[19]</a>. Due to compute/memory constraints, we fine-tuned the policy using parameter-efficient Low-Rank Adaptation (LoRA) on top of the frozen base model. We enabled LoRA only on the attention query and value projection layers in each transformer block. The LoRA rank was set to 16 with a scaling factor of 32, yielding adaptation scale 2. A dropout rate of 0.05 was applied on the LoRA branch to regularize the adapters.</p>
+                    <p><b>Hyperparameter Sweep.</b>&nbsp;&nbsp;&nbsp;For GCE and SCE, we perform a hyperparameter search on each level of noise, and evaluate on the test split of UltraFeedback. To tune the GCE $q$ hyperparameter, we run a small grid search over $q \in \{0.3, 0.5, 0.7, 0.9, 1\}$. For SCE, we search over four $(\alpha, \beta)$ pairs: $\{ (0.1, 1.0), (0.5, 1.0), (0.7, 0.7), (1.5, 0.5)\}$. Note that these pairs span a wide range of $\alpha /\beta$ ratios, so that we test settings where the reverse or standard cross-entropy term dominates, as well as more balanced settings. After the hyperparameter search, the best $q$ and $(\alpha, \beta)$ are chosen separately for each noise level while other hyperparameters are kept identical to ensure a fair comparison between BT, GCE, and SCE.</p>
+                    <p><b>Compute Details.</b>&nbsp;&nbsp;&nbsp;All experiments are implemented in Python using the Hugging Face transformers and Transformer Reinforcement Learning (TRL) libraries together with PyTorch <a href="#ref_21">[21</a>, <a href="#ref_22">22]</a>. Reward models were trained on 8 H100 GPUs averaging approximately 1 hour per reward model run. GRPO was trained on 32 H100 GPUs averaging approximately 45 hours per run.</p>
+        </div>
+        <div class="margin-right-block">
+        </div>
+    </div>
+
+    <div class="content-margin-container" id="discussion">
+        <div class="margin-left-block">
+        </div>
+    <div class="main-content-block">
+                <h1>Discussion</h1>
+                <h2 id="reward-model-training-results">Reward Model Training Results</h2>
+                <img src="./figures/rm_results_table.png" width="450px" style="padding-top: 10px;"/>
+                <p>Our standalone reward model experiments demonstrate how robust losses behave under increasing label noise. As the noise level increases, all losses result in a drop in test accuracy on the clean UltraFeedback data. However, the rate of degradation differs across the different loss functions. For each noise level, we analyze the results considering the best hyperparameters for GCE and SCE below.</p>
+                <p><b>Clean data.</b>&nbsp;&nbsp;&nbsp;When training on clean data ($p=0$), all three losses achieve very similar performance: BT at 75.23%, GCE at 75.45%, and SCE at 75.92% accuracy. Interestingly, this suggests that using GCE and SCE can match BT performance on clean data if the hyperparameters are chosen carefully.</p>
+                <p><b>Moderate noise.</b>&nbsp;&nbsp;&nbsp;Under moderate noise ($p=0.2$), the BT baseline remains surprisingly competitive. Its accuracy drops to 73.93%, GCE drops to 73.81%, and SCE drops to 73.48%. These differences in accuracy are again very small, and may only be attributed to variance in training and evaluation. Nonetheless, at this noise level, BT loss actually achieves the best test accuracy. This suggests that for reasonably high-quality preference data, with noise on the order of 20%, the three losses are quite comparable. Simply training a BT reward model is still quite effective, and the benefits of swapping in a robust loss like GCE or SCE are limited.</p>
+                <p><b>High noise.</b>&nbsp;&nbsp;&nbsp;Finally, under the highest noise setting ($p=0.4$), the benefits of the robust losses become apparent. The BT baseline degrades the fastest, while GCE and SCE result in a slower drop in performance. Specifically, BT accuracy falls to 67.52%, while GCE retains 69.94% accuracy, and SCE achieves 69.63%. So, at high noise levels, the robust losses recover up to around $2.5$ percentage points of accuracy over BT, indicating that they can extract a non-trivial amount of signal that BT loss fails to exploit. In the next section, we further run downstream policy optimization using these models to examine if this performance gap affects the policy meaningfully.</p>
+                <img src="./figures/rm_acc.png" width="750px" style="padding-top: 10px;"/>
+                <h2 id="grpo-results">GRPO Results</h2>
+                <p>We next evaluate whether improvements in reward model robustness translate into better downstream policies under GRPO. Using the setup described in Methods, we compare two policies that trained on the noisiest data ($p=0.4$): one fine-tuned with a reward model trained using the baseline BT loss, and another fine-tuned with a reward model trained using GCE with $q=0.9$. The rewards and GRPO objective during training are shown below.</p>
+                <img src="./figures/grpo_train_curve.png" width="700px" style="padding-top: 10px;"/>
+                <p>Our results show that the GCE-0.9-based policy substantially outperforms the BT-based policy. The GCE-0.9 policy is preferred by the LM judge on 707/1,024 UltraChat prompts (69.04%) and on 542/750 Arena-Hard-Auto prompts (72.26%). For both datasets, the GCE robust‑loss policy wins more than twice as often as the baseline. This gap is far larger than would be expected from random variation, suggesting that the choice of loss for reward modeling can have a significant downstream impact on GRPO under noisy preference data.</p>
+                <p>On UltraChat, these results shows that a more noise-robust reward model yields substantially better behavior on the training domain. On Arena-Hard-Auto, the high win rate suggests that this performance extends to difficult, real-world questions and creative writing, as opposed to overfitting to the GRPO training data. Together with the standalone reward‑model results, these findings suggest that even relatively modest gains in reward robustness can lead to substantial improvements in alignment quality.</p>
+                <p>We hypothesize that this improvement can be attributed to both the higher RM accuracy, as well as potentially <b>greater reward margins</b> by the robust loss functions. Specifically, in addition to gaining 2.5% in eval accuracy, the GCE-0.9 reward model outputted reward scores that were significantly more spread out than that of the BT reward model. We calculate the evaluation margin of the best reward models at each setting to confirm this, which is the average difference between the reward given on the preferred response and the rejected response over the evaluation set. We report these metrics below over all noise levels and loss functions at the best hyperparameters. We observe that GCE and SCE consistently output higher reward margin.</p>
+                <img src="./figures/rm_eval_margin_table.png" width="400px" style="padding-top: 10px;"/>
+            </div>
+    <div class="margin-right-block" style="transform: translate(0%, -300%);">
+        <p style="transform: translate(0%, 0%);">
+            <b>Table 1.</b> Reward model accuracy (%) over loss functions and noise levels.
+        </p>
+        <p style="transform: translate(0%, 1800%);">
+            <b>Figure 1.</b> Train and eval curves for best reward models.
+        </p>
+        <p style="transform: translate(0%, 2800%);">
+            <b>Figure 2.</b> Train reward and objective curves during GRPO training.
+        </p>
+        <p style="transform: translate(0%, 4400%);">
+            <b>Table 2.</b> Evaluation margin for the best models.
+        </p>
+    </div>
+</div>
+
+<div class="content-margin-container" id="conclusion">
+    <div class="margin-left-block">
+    </div>
+<div class="main-content-block">
+            <h1>Conclusion</h1>
+            <p>We studied robust reward modeling for RLHF under noisy preference data by analyzing the effect of loss functions from the noisy-label literature. Specifically, we compared training reward models with the standard Bradley-Terry (BT) loss against Generalized Cross Entropy (GCE) and Symmetric Cross Entropy (SCE) on UltraFeedback under synthetic noise levels \(p\in \{0, 0.2, 0.4\}\). Then, we evaluated the downstream GRPO policies from high-performing reward models under high-noise conditions. Our results show that robust losses behave similarly to BT for clean or moderately noisy data, but offer substantial improvement when label corruption becomes severe. At \(p=0.4\), both GCE and SCE degrade more slowly than BT, yielding an additional 2-2.5 percentage points of reward-model accuracy.</p>
+            <p>Notably, these modest accuracy gains translate into large improvements after policy optimization. When we fine-tune Qwen3-0.6B-Base with GRPO using the BT reward model vs. the best robust variant (GCE with \(q=0.9\)), the GCE-based policy is preferred by an LM judge on 69.04% on UltraChat testing prompts and 72.26% Arena-Hard-Auto prompts. Our results suggest that robust losses such as GCE and SCE are simple, drop-in replacements for BT that can make alignment training more robust under high noise settings.</p>
+            <h2 id="limitations">Limitations</h2>
+            <p>Our study has several limitations that point to directions for future work. First, our noise model is relatively simple, capturing only symmetric random label corruption. In practice, noise is often structured (e.g., length bias, annotator biases, etc.), and it is unclear how well our conclusions transfer to these more complex settings. Second, due to computational constraints, we evaluate on a single preference dataset (UltraFeedback) with one relatively small base model (Qwen3-0.6B-Base). The performance of robust losses may differ for larger models and other domains. We also only trained GRPO on two models at 1/15 of the full dataset due to compute constraints, so further evaluations here could show interesting trends. Finally, we focus only on two prominent losses from the noisy-label literature, leaving many other noise-robust techniques unexplored. Thus, future work could (i) study robust losses under more realistic noise and on multiple RLHF datasets, (ii) evaluate larger and different base models with more data, and (iii) analyze additional robust losses from the noisy-label literature.</p>
+
+</div>
+<div class="margin-right-block">
+</div>
+</div>
+
+    <div class="content-margin-container" id="citations">
+            <div class="margin-left-block">
+            </div>
+        <div class="main-content-block">
+            <div class='citation' id="references" style="height:auto"><br>
+                <span style="font-size:16px">References:</span><br><br>
+              
+                <a id="ref_1"></a>[1]
+                <a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf">
+                  Training language models to follow instructions with human feedback
+                </a>, Ouyang et al. 2022<br><br>
+              
+                <a id="ref_2"></a>[2]
+                <a href="https://aclanthology.org/2023.eacl-main.178/">
+                  Why Don't You Do It Right? Analysing Annotators' Disagreement in Subjective Tasks
+                </a>, Sandri et al. 2023<br><br>
+              
+                <a id="ref_3"></a>[3]
+                <a href="https://arxiv.org/abs/2407.06902">
+                  Learning From Crowdsourced Noisy Labels: A Signal Processing Perspective
+                </a>, Ibrahim et al. 2025<br><br>
+              
+                <a id="ref_4"></a>[4]
+                Learning from noisy labels with deep neural networks: a survey,
+                Song et al., <i>IEEE Transactions on Neural Networks and Learning Systems</i>, 2022<br><br>
+              
+                <a id="ref_5"></a>[5]
+                <a href="https://doi.org/10.1145/3159652.3159654">
+                  Cognitive Biases in Crowdsourcing
+                </a>, Eickhoff 2018<br><br>
+              
+                <a id="ref_6"></a>[6]
+                <a href="https://arxiv.org/abs/1805.07836">
+                  Generalized Cross Entropy Loss for Training Deep Neural Networks with Noisy Labels
+                </a>, Zhang &amp; Sabuncu 2018<br><br>
+              
+                <a id="ref_7"></a>[7]
+                Symmetric Cross Entropy for Robust Learning with Noisy Labels,
+                Wang et al., ICCV 2019<br><br>
+              
+                <a id="ref_8"></a>[8]
+                Normalized Loss Functions for Deep Learning with Noisy Labels,
+                Ma et al., ICML 2020<br><br>
+              
+                <a id="ref_9"></a>[9]
+                <a href="https://arxiv.org/abs/1707.06347">
+                  Proximal Policy Optimization Algorithms
+                </a>, Schulman et al. 2017<br><br>
+              
+                <a id="ref_10"></a>[10]
+                <a href="https://arxiv.org/abs/2402.03300">
+                  DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models
+                </a>, Shao et al. 2024<br><br>
+              
+                <a id="ref_11"></a>[11]
+                Training a Helpful and Harmless Assistant with Reinforcement Learning from Human Feedback,
+                Bai et al. 2022<br><br>
+              
+                <a id="ref_12"></a>[12]
+                <a href="https://arxiv.org/abs/2508.05928">
+                  Mitigating Think-Answer Mismatch in LLM Reasoning Through Noise-Aware Advantage Reweighting
+                </a>, Shen et al. 2025<br><br>
+              
+                <a id="ref_13"></a>[13]
+                <a href="https://arxiv.org/abs/2402.09345">
+                  InfoRM: Mitigating Reward Hacking in RLHF via Information-Theoretic Reward Modeling
+                </a>, Miao et al. 2024<br><br>
+              
+                <a id="ref_14"></a>[14]
+                <a href="https://arxiv.org/abs/2402.09764">
+                  Aligning Crowd Feedback via Distributional Preference Reward Modeling
+                </a>, Li et al. 2024<br><br>
+              
+                <a id="ref_15"></a>[15]
+                <a href="https://arxiv.org/abs/2409.10164">
+                  Quantile Regression for Distributional Reward Models in RLHF
+                </a>, Dorka 2024<br><br>
+              
+                <a id="ref_16"></a>[16]
+                <a href="https://arxiv.org/abs/1712.09482">
+                  Robust Loss Functions under Label Noise for Deep Neural Networks
+                </a>, Ghosh et al. 2017<br><br>
+              
+                <a id="ref_17"></a>[17]
+                <a href="https://arxiv.org/abs/1903.12141">
+                  IMAE for Noise-Robust Learning: Mean Absolute Error Does Not Treat Examples Equally and Gradient Magnitude's Variance Matters
+                </a>, Wang et al. 2023<br><br>
+              
+                <a id="ref_18"></a>[18]
+                <a href="https://arxiv.org/abs/2310.01377">
+                  UltraFeedback: Boosting Language Models with Scaled AI Feedback
+                </a>, Cui et al. 2024<br><br>
+              
+                <a id="ref_19"></a>[19]
+                <a href="https://arxiv.org/abs/2305.14233">
+                  Enhancing Chat Language Models by Scaling High-quality Instructional Conversations
+                </a>, Ding et al. 2023<br><br>
+              
+                <a id="ref_20"></a>[20]
+                <a href="https://arxiv.org/abs/2406.11939">
+                  From Crowdsourced Data to High-Quality Benchmarks: Arena-Hard and BenchBuilder Pipeline
+                </a>, Li et al. 2024<br><br>
+              
+                <a id="ref_21"></a>[21]
+                <a href="https://aclanthology.org/2020.emnlp-demos.6/">
+                  Transformers: State-of-the-Art Natural Language Processing
+                </a>, Wolf et al. 2020<br><br>
+              
+                <a id="ref_22"></a>[22]
+                <a href="https://github.com/huggingface/trl">
+                  TRL: Transformer Reinforcement Learning
+                </a>, von Werra et al. 2020<br><br>
+              </div>              
+        </div>
+        <div class="margin-right-block">
+        <!-- margin notes for reference block here -->
+        </div>
+    </div>
+
+</body>
+
+</html>
