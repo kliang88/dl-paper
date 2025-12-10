@@ -1,6 +1,13 @@
 <html>
 <head>
-
+<script>
+	window.MathJax = {
+		tex: {
+		inlineMath: [['$', '$'], ['\\(', '\\)']],
+		displayMath: [['$$', '$$'], ['\\[', '\\]']]
+		}
+	};
+</script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -443,31 +450,10 @@
 				<div class="margin-left-block">
 				</div>
 		    <div class="main-content-block">
-						<h1>Technical Implementation Details</h1>
-						All experiments in this study were conducted using an Nvidia A40 GPU. <br><br>
-
-                        As for the training details, we used an Adam optimizer with an initial learning rate of \(10^{-4}\). A cosine-annealing learning rate scheduler was also used with a minimum learning rate of \(10^{-5}\) for a maximum number of steps equal to the number of training epochs. We also implement early stopping for our runs, with a patience of 5 epochs, tracking the validation accuracy for any improvements each epoch. <br><br>
-
-                        <div class="algorithm-container">
-                            <div class="title">Algorithm: Early Stopping Algorithm</div>
-                            <div><strong>Inputs:</strong> Validation Metric (<code>CurrentValue</code>), Patience (<code>P</code>), Minimum Delta (<code>&delta;</code>)</div>
-                            <div><strong>Initialization:</strong> <code>BestValue &larr; -∞</code>, <code>Counter &larr; 0</code></div>
-                            <div class="code">
-                                While Training is ongoing:<br>
-                                &nbsp;&nbsp;If (<code>CurrentValue &gt; BestValue + δ</code>):<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;BestValue &larr; CurrentValue<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;Counter &larr; 0<br>
-                                &nbsp;&nbsp;Else:<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;Counter &larr; Counter + 1<br>
-                                &nbsp;&nbsp;If (<code>Counter &geq; P</code>):<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;Stop Training<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;Break
-                            </div>
-                        </div><br><br>
-
-                        Finally, we set a seed for all runs to ensure that all runs are consistent and not due to random chance. For the sake of reducing computation time, we subsetted the Food101 dataset to take 50% of the all training and validation samples. All datasets were trained and validated using batch sizes of 128 and 512 images, respectively. 
-
-
+						<h1>Technical Details</h1>
+						<p><b>Model training.</b>&nbsp;&nbsp;&nbsp;We optimize all reward models with AdamW using an initial learning rate of $10^{-5}$, a batch size of 8, and a single epoch over the full UltraFeedback training split. Among the checkpoints saved during training, we select the one with the highest validation accuracy on a held-out subset of UltraFeedback. GRPO fine-tuning used AdamW with an initial learning rate of $10^{-5}$, run for one epoch on 17,068 prompts from the UltraChat dataset (1/15 of the train split due to compute constraints) <a href="#ref_18">[18]</a>. Due to compute/memory constraints, we fine-tuned the policy using parameter-efficient Low-Rank Adaptation (LoRA) on top of the frozen base model. We enabled LoRA only on the attention query and value projection layers in each transformer block. The LoRA rank was set to 16 with a scaling factor of 32, yielding adaptation scale 2. A dropout rate of 0.05 was applied on the LoRA branch to regularize the adapters.</p>
+						<p><b>Hyperparameter Sweep.</b>&nbsp;&nbsp;&nbsp;For GCE and SCE, we perform a hyperparameter search on each level of noise, and evaluate on the test split of UltraFeedback. To tune the GCE $q$ hyperparameter, we run a small grid search over $q \in \{0.3, 0.5, 0.7, 0.9, 1\}$. For SCE, we search over four $(\alpha, \beta)$ pairs: $\{ (0.1, 1.0), (0.5, 1.0), (0.7, 0.7), (1.5, 0.5)\}$. Note that these pairs span a wide range of $\alpha /\beta$ ratios, so that we test settings where the reverse or standard cross-entropy term dominates, as well as more balanced settings. After the hyperparameter search, the best $q$ and $(\alpha, \beta)$ are chosen separately for each noise level while other hyperparameters are kept identical to ensure a fair comparison between BT, GCE, and SCE.</p>
+						<p><b>Compute Details.</b>&nbsp;&nbsp;&nbsp;All experiments are implemented in Python using the Hugging Face transformers and Transformer Reinforcement Learning (TRL) libraries together with PyTorch <a href="#ref_20">[20</a>, <a href="#ref_21">21]</a>. Reward models were trained on 8 H100 GPUs averaging approximately 1 hour per reward model run. GRPO was trained on 32 H100 GPUs averaging approximately 45 hours per run.</p>
 		    </div>
 		    <div class="margin-right-block">
 		    </div>
@@ -478,158 +464,32 @@
             </div>
         <div class="main-content-block">
                     <h1>Discussion</h1>
-                    Now, let's interpret the results of our study.<br><br>
-
-                    <i>Freezing encoder layers during training:</i><br><br>
-
-					<img src="./figures/fl_no_freeze_all_freeze.png" width="600px" style="padding-top: 50px;"/>
-					<img src="./figures/dtd_no_freeze_all_freeze.png" width="600px" style="padding-bottom: 50px;"/>
-
-                    Freezing the transformer encoder layers during fine-tuning proved to be detrimental to the models’ accuracy and convergence time. As shown in Figure 3, in which the models were trained following the vanilla training scheme, the models with frozen transformer encoders took many more epochs/batches to converge compared to those without any freezing. Furthermore, the frozen model converged at a significantly lower accuracy value (66.3%) than the unfrozen model (73.6%) on DTD, as shown in Figure 3.<br><br>
-
-                    <i>ADS for Transfer Learning:</i><br><br>
-                    Several combinations of ADS training hyperparameters achieved higher accuracy and quicker convergence than vanilla training on the Oxford Flowers and DTD datasets. Note that we use the number of batches required for convergence rather than the number of epochs for comparing different training schemes since ADS uses much fewer batches in the reweighted epochs.<br><br>
-
-                    <img src="./figures/fl_mixone_nomixone.png" width="600px" style="padding-top: 50px;"/>
-
-                    First, the alternating phases approach proved much more successful than using only targeted epochs, as shown in Figure 4. Shifting to only the worst-performing classes is prone to overfitting; the model begins to “forget” about the classes it performed well on. Therefore, we used only the alternating phases approach in subsequent experiments. <br><br>
-					
-					<div style="text-align: center; margin-bottom: 5px;">
-						<b>Flowers</b>
-					</div>
-					<table border="1" cellpadding="8" cellspacing="0">
-						<thead>
-							<tr>
-								<th>Model</th>
-								<th>Training Scheme</th>
-								<th>Targeted Epoch Frequency</th>
-								<th># of Top-k Bad Classes</th>
-								<th>Highest Accuracy*</th>
-								<th># batches for convergence</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>1</td>
-								<td>Vanilla</td>
-								<td>N/A</td>
-								<td>N/A</td>
-								<td>97.71%</td>
-								<td>440</td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td>Ours</td>
-								<td>2</td>
-								<td>25</td>
-								<td><b style="color:blue">97.84%</b></td>
-								<td>393</td>
-							</tr>
-							<tr>
-								<td>3</td>
-								<td>Ours</td>
-								<td>4</td>
-								<td>25</td>
-								<td>97.74%</td>
-								<td><b style="color:blue">305</b></td>
-							</tr>
-						</tbody>
-					</table><br><br>
-
-                    
-                    As shown in Table 1, taking the 25 classes with the lowest validation accuracy in each reweighting phase achieved slightly higher accuracies after training with significantly fewer batches. Model 2, trained by inserting targeted epochs every 2 epochs, achieved ~97.7% accuracy in a similar number of batches to Model 3, but was able to continue learning before converging at 97.8% accuracy in significantly fewer batches than the vanilla approach.
-
-					<div style="text-align: center; margin-bottom: 5px;">
-						<b>DTD</b>
-					</div>
-					<table border="1" cellpadding="8" cellspacing="0">
-						<thead>
-							<tr>
-								<th>Model</th>
-								<th>Training Scheme</th>
-								<th>Targeted Epoch Frequency</th>
-								<th># of Top-k Bad Classes</th>
-								<th>Highest Accuracy*</th>
-								<th># batches for convergence</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>1</td>
-								<td>Vanilla</td>
-								<td>N/A</td>
-								<td>N/A</td>
-								<td>73.55%</td>
-								<td>255</td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td>Ours</td>
-								<td>2</td>
-								<td>5</td>
-								<td>73.59</td>
-								<td><b style="color:blue">225</b></td>
-							</tr>
-							<tr>
-								<td>3</td>
-								<td>Ours</td>
-								<td>3</td>
-								<td>12</td>
-								<td><b style="color:blue">73.92%</b></td>
-								<td>183</td>
-							</tr>
-						</tbody>
-					</table><br><br>
-
-                    Experiments run on DTD achieved similar results to those run on Oxford Flowers, as shown in Table 2. Model 2 converged to a similar accuracy to Model 1 (vanilla), but in significantly fewer batches. Furthermore, Model 3 achieved significantly higher accuracy in more batches than Model 2, but still fewer batches than the vanilla approach. <br><br>
-                    
-					<img src="./figures/dtd_prop_comparison.png" width="600px" style="padding-top: 50px;"/>
-
-                    Changing the proportion of weight in the reweighted dataset given to the top-k bad classes was inconsequential; as shown in Figure 5, all models achieved very similar training histories.<br><br>
-
-                    <i>Training from Scratch on Food101:</i><br><br>
-
-                    <img src="./figures/food_from_scratch.png" width="600px" style="padding-top: 50px;"/>
-
-                    ADS was much more successful than vanilla training when training a ViT from scratch. As shown in Figure 6, vanilla training converged at ~16% accuracy on the Food101 dataset, while ADS, despite its intrinsically more unstable training history due to the insertion of reweighted epochs, continued to grow past ~34% accuracy (training stopped early due to computational constraints). We believe that this shows great promise in proving that ADS allows models to continue learning valuable information in later epochs due to the presence of targeted epochs, although further experimentation on training models from scratch is needed to prove that this is the case.
-
-
-                    
-
-
-
-        </div>
-        <div class="margin-right-block" style="transform: translate(0%, -100%);">
-			<p style="transform: translate(0%, -300%);">
-				<b>Figure 3.</b> Comparing parameter freezing with no parameter freezing for fine-tuning on Oxford Flowers (top) and DTD (bottom).
+                    <h2 id="reward-model-training-results">Reward Model Training Results</h2>
+					<img src="./figures/rm_results_table.png" width="450px" style="padding-top: 10px;"/>
+					<p>Our standalone reward model experiments demonstrate how robust losses behave under increasing label noise. As the noise level increases, all losses result in a drop in test accuracy on the clean UltraFeedback data. However, the rate of degradation differs across the different loss functions. For each noise level, we analyze the results considering the best hyperparameters for GCE and SCE below.</p>
+					<p><b>Clean data.</b>&nbsp;&nbsp;&nbsp;When training on clean data ($p=0$), all three losses achieve very similar performance: BT at 75.23%, GCE at 75.45%, and SCE at 75.92% accuracy. Interestingly, this suggests that using GCE and SCE can match BT performance on clean data if the hyperparameters are chosen carefully.</p>
+					<p><b>Moderate noise.</b>&nbsp;&nbsp;&nbsp;Under moderate noise ($p=0.2$), the BT baseline remains surprisingly competitive. Its accuracy drops to 73.93%, GCE drops to 73.81%, and SCE drops to 73.48%. These differences in accuracy are again very small, and may only be attributed to variance in training and evaluation. Nonetheless, at this noise level, BT loss actually achieves the best test accuracy. This suggests that for reasonably high-quality preference data, with noise on the order of 20%, the three losses are quite comparable. Simply training a BT reward model is still quite effective, and the benefits of swapping in a robust loss like GCE or SCE are limited.</p>
+					<p><b>High noise.</b>&nbsp;&nbsp;&nbsp;Finally, under the highest noise setting ($p=0.4$), the benefits of the robust losses become apparent. The BT baseline degrades the fastest, while GCE and SCE result in a slower drop in performance. Specifically, BT accuracy falls to 67.52%, while GCE retains 69.94% accuracy, and SCE achieves 69.63%. So, at high noise levels, the robust losses recover up to around $2.5$ percentage points of accuracy over BT, indicating that they can extract a non-trivial amount of signal that BT loss fails to exploit. In the next section, we further run downstream policy optimization using these models to examine if this performance gap affects the policy meaningfully.</p>
+					<img src="./figures/rm_acc.png" width="750px" style="padding-top: 10px;"/>
+					<h2 id="grpo-results">GRPO Results</h2>
+					<p>We next evaluate whether improvements in reward model robustness translate into better downstream policies under GRPO. Using the setup described in Methods, we compare two policies that trained on the noisiest data ($p=0.4$): one fine-tuned with a reward model trained using the baseline BT loss, and another fine-tuned with a reward model trained using GCE with $q=0.9$. The rewards and GRPO objective during training are shown below.</p>
+					<img src="./figures/grpo_train_curve.png" width="700px" style="padding-top: 10px;"/>
+					<p>Our results show that the GCE-0.9-based policy substantially outperforms the BT-based policy. The GCE-0.9 policy is preferred by the LM judge on 707/1,024 UltraChat prompts (69.04%) and on 542/750 Arena-Hard-Auto prompts (72.26%). For both datasets, the GCE robust‑loss policy wins more than twice as often as the baseline. This gap is far larger than would be expected from random variation, suggesting that the choice of loss for reward modeling can have a significant downstream impact on GRPO under noisy preference data.</p>
+					<p>On UltraChat, these results shows that a more noise-robust reward model yields substantially better behavior on the training domain. On Arena-Hard-Auto, the high win rate suggests that this performance extends to difficult, real-world questions and creative writing, as opposed to overfitting to the GRPO training data. Together with the standalone reward‑model results, these findings suggest that even relatively modest gains in reward robustness can lead to substantial improvements in alignment quality.</p>
+					<p>We hypothesize that this improvement can be attributed to both the higher RM accuracy, as well as potentially <b>greater reward margins</b> by the robust loss functions. Specifically, in addition to gaining 2.5% in eval accuracy, the GCE-0.9 reward model outputted reward scores that were significantly more spread out than that of the BT reward model. We calculate the evaluation margin of the best reward models at each setting to confirm this, which is the average difference between the reward given on the preferred response and the rejected response over the evaluation set. We report these metrics below over all noise levels and loss functions at the best hyperparameters. We observe that GCE and SCE consistently output higher reward margin.</p>
+					<img src="./figures/rm_eval_margin_table.png" width="400px" style="padding-top: 10px;"/>
+				</div>
+        <div class="margin-right-block" style="transform: translate(0%, -250%);">
+			<p style="transform: translate(0%, 0%);">
+				<b>Table 1.</b> Reward model accuracy (%) over loss functions and noise levels.
 			</p>
-
-			<p style="transform: translate(0%, 500%);">
-				<b>Figure 4.</b> Results of comparing the alternating phases scheme with the only targeted epochs scheme on Oxford Flowers. Note that alternating phases converges to a significantly higher validation accuracy.
+			<p style="transform: translate(0%, 1600%);">
+				<b>Figure 1.</b> Train and eval curves for best reward models.
 			</p>
-		
-			<p style="transform: translate(0%, 700%);">
-				<b>Table 1.</b> Results of vanilla and ADS training with several hyperparameters on Oxford Flowers. All of our runs were run with alternating phases.
-
-				*the accuracy described here is the average accuracy over a sliding window of width 3.
-			</p>
-		
-			<p style="transform: translate(0%, 900%);">
-				<b>Table 2.</b> Results of vanilla and ADS training with several hyperparameters on DTD. All of our runs were run with alternating phases.
-				
-				*the accuracy described here is the average accuracy over a sliding window of width 3.
-			</p>
-
-			<p style="transform: translate(0%, 2300%);">
-				<b>Figure 5.</b> Results of varying the proportion of weight given to the worst classes in the reweighted dataset on DTD.
-			</p>
-
-			<p style="transform: translate(0%, 3200%);">
-				<b>Figure 6.</b> Results of training ViTs from scratch, once with vanilla training and once with our ADS scheme.
+			<p style="transform: translate(0%, 2800%);">
+				<b>Figure 2.</b> Train reward and objective curves during GRPO training.
 			</p>
 		</div>
-
-
     </div>
 
     <div class="content-margin-container" id="conclusion">
@@ -637,33 +497,10 @@
         </div>
     <div class="main-content-block">
                 <h1>Conclusion</h1>
-                In this study, we investigated a new training paradigm for optimizing image classification models called Adaptive Data Selection (ADS). Whereas typical optimization methods involve running an optimizer on randomly selected or predetermined batches of training data (e.g. curriculum learning), ADS utilizes a dynamic training selection procedure that tailors training toward the model's specific weaknesses, focusing on underperforming regions of the training data distribution. Specifically, in a classification problem, our ADS framework evaluates the model's performance after some number of training epochs and identifies the top-k classes where the model is performing the worst in (in terms of classification accuracy). Then, some subsequent training epochs prioritize data from these worst performing classes, allowing the model to improve on its deficiencies. The rationale behind this is that, in order to speed up convergence with limited data, ADS can effectively concentrate its computational resources on resolving performance bottlenecks. This targeted process of identifying poor performing classes and training on them is repeated until convergence.<br><br>
-                Our experiments explored the effectiveness of ADS in various scenarios, including transfer learning with pre-trained ViT models and training ViTs up from scratch. Our findings on the applicability of ADS to transfer learning include:
-
-                <ol>
-                    <li>
-                        ADS showed faster convergence and outperformed standard stochastic training methods. In the Oxford Flowers dataset, ADS achieved higher accuracy with much fewer training batches than traditional methods. A model trained with ADS, with an accuracy of 97.74%, outperformed baseline models while using fewer batches (305 vs 440).
-                    </li>
-                    <li>
-                        On the Describable Textures Dataset (DTD), ADS similarly showed notable improvements in convergence rates (183 batches vs 255 batches) while exceeding baseline accuracy, further validating its effectiveness across different datasets.
-                    </li>
-                    <li>
-                        We also ran transfer learning experiments where we trained one model while freezing the transformer encoder layers and one model while not freezing any weights. The motivation for freezing the transformer weights was that, with less tunable parameters, the model would need to learn more efficiently and thus lead to faster convergence in terms of total data points trained on and total epochs. However, we found that this freezing technique resulted in markedly lower performance and took many more epochs and batches to converge when fine-tuned on the Flowers dataset. Additionally, the frozen model achieved a substantially lower validation accuracy of 66.3% than the free unfrozen model with a validation accuracy of 73.6% when trained on the DTD dataset. This leads us to believe that freezing the transformer encoder may not allow enough model expressivity.
-                    </li>
-                </ol> 
-
-
-                We also trained models from scratch using ADS. In particular, we investigated the performance of ADS by training a classification model on the Food101 dataset. We trained two vision transformers of the same dimensions: one using the targeted ADS data selection method and one using stochastic data selection. We found that the ViT trained using ADS (validation accuracy 0.336) significantly outperforms the standard ViT (validation accuracy 0.163). It is worth noting that due to our limited model size, training capabilities, and computational resources, our models are not performing as well as state-of-the-art models. However, the relative performance between the two models under these constraints is clear. <br><br>
-
-                ADS represents a step toward efficient and adaptive methods of training in deep learning. In this regard, it is especially promising for applications where either the training data is severely imbalanced or the available computational power is limited. An extension to reinforcement learning would aim at prioritizing states and actions where policies are not performing well, thus leading to faster convergence in complex environments. In natural language processing, ADS may dynamically focus on ambiguous samples, which could enhance model performance for tasks such as sentiment analysis or machine translation. Future development of the ADS algorithm could focus on optimizing how many top-k classes to choose for training or by performing hyperparameter sweeps on the number of epochs per training section in our AP or TOTE training schemes. It is worth nothing that in our experiments, we were limited by our computing power and were unable to run extensive trials to exhaustively test our conclusions. Thus, to make the method more solid and proven, more trials would need to be conducted to ensure that the difference in performance is statistically significant. Additionally, the choice of datasets and hyperparameters were also partially chosen to ensure that we would have time to run all experiments that we deemed necessary. This may have led to unoptimal parameter choices for select a select few experiments and may require further study.
-
-
-
-
-
-
-                
-
+                <p>We studied robust reward modeling for RLHF under noisy preference data by analyzing the effect of loss functions from the noisy-label literature. Specifically, we compared training reward models with the standard Bradley-Terry (BT) loss against Generalized Cross Entropy (GCE) and Symmetric Cross Entropy (SCE) on UltraFeedback under synthetic noise levels \(p\in \{0, 0.2, 0.4\}\). Then, we evaluated the downstream GRPO policies from high-performing reward models under high-noise conditions. Our results show that robust losses behave similarly to BT for clean or moderately noisy data, but offer substantial improvement when label corruption becomes severe. At \(p=0.4\), both GCE and SCE degrade more slowly than BT, yielding an additional 2-2.5 percentage points of reward-model accuracy.</p>
+				<p>Notably, these modest accuracy gains translate into large improvements after policy optimization. When we fine-tune Qwen3-0.6B-Base with GRPO using the BT reward model vs. the best robust variant (GCE with \(q=0.9\)), the GCE-based policy is preferred by an LM judge on 69.04% on UltraChat testing prompts and 72.26% Arena-Hard-Auto prompts. Our results suggest that robust losses such as GCE and SCE are simple, drop-in replacements for BT that can make alignment training more robust under high noise settings.</p>
+				<h2 id="limitations">Limitations</h2>
+				<p>Our study has several limitations that point to directions for future work. First, our noise model is relatively simple, capturing only symmetric random label corruption. In practice, noise is often structured (e.g., length bias, annotator biases, etc.), and it is unclear how well our conclusions transfer to these more complex settings. Second, due to computational constraints, we evaluate on a single preference dataset (UltraFeedback) with one relatively small base model (Qwen3-0.6B-Base). The performance of robust losses may differ for larger models and other domains. We also only trained GRPO on two models at 1/15 of the full dataset due to compute constraints, so further evaluations here could show interesting trends. Finally, we focus only on two prominent losses from the noisy-label literature, leaving many other noise-robust techniques unexplored. Thus, future work could (i) study robust losses under more realistic noise and on multiple RLHF datasets, (ii) evaluate larger and different base models with more data, and (iii) analyze additional robust losses from the noisy-label literature.</p>
 
     </div>
     <div class="margin-right-block">
